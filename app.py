@@ -30,8 +30,8 @@ def query_llm(topic, difficulty, questions):
     query = (
         f"Generate educational content for the programming language topic {topic} with difficulty '{difficulty}'. "
         f"The content should include:\n"
-        f"- Intro to the difficulty of the topic, all the concepts of the language which fall under{difficulty}difficulty, syntaxes and important points.\n"
-        f"- {questions} coding questions that cover all the concepts discussed above.\n"
+        f"- Intro to the difficulty of the topic, concepts which will be covered, syntaxes and important points.\n"
+        f"- {questions} coding questions that cover different concepts related to the topic.\n"
         f"- Each question should have the following fields: question, question_id, concept_introduction and syntax, and expected_output.\n"
         f"DO NOT SKIP ANY QUESTION! EVERY QUESTION TO BE IN THE STRUCTURE PROVIDED BELOW\n\n"
         f"The response should be structured as follows:\n"
@@ -52,6 +52,18 @@ def query_llm(topic, difficulty, questions):
     response = chain.invoke({'question': query})
     return response
 
+def query_llm2(codes):
+    query = (
+        f"Analyze the following list of code snippets:\n{codes}\n\n"
+        f"Identify the programming language or framework used and the topics covered. The response should be structured as follows:\n"
+        
+        f"  'Title': '...',\n"
+        f"  'Topics': [...]"
+       
+    )
+    response = chain.invoke({'question': query})
+    return response
+
 @app.route('/generate-skill', methods=['POST'])
 def generate_skill():
     data = request.json
@@ -65,11 +77,16 @@ def generate_skill():
     result = query_llm(topic, difficulty, questions)
     return jsonify(result)
 
-
-@app.route('/generate-badge',methods=['POST'])
+@app.route('/generate-badge', methods=['POST'])
 def badge_gen():
     data = request.json
+    codes = data.get('codes')
     
+    if not codes or not isinstance(codes, list):
+        return jsonify({'error': 'Codes must be provided as a list of strings.'}), 400
+
+    result = query_llm2(codes)
+    return jsonify(result)
 
 if __name__ == '__main__':
-    app.run(host='localhost', port=5868, debug=True)
+    app.run(host='localhost', port=5000, debug=True)
