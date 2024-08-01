@@ -6,3 +6,6 @@ sentence-transformers==2.2.0
 requests==2.31.0
 pinecone-client==2.2.2
 groq==0.4.1
+langchain-google-genai
+pillow
+python-dotenv
